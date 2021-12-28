@@ -32,56 +32,55 @@
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
             android:onClick="onSignIntoSpotifyClicked"
-            android:text="@string/btn_req_token" />
+         android:text="@string/btn_req_token" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+     <LinearLayout
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content">
 
-            <Button
-                android:id="@+id/btn_get_playlists"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_margin="8dp"
-                android:layout_weight="1"
-                android:layout_gravity="center_vertical"
-                android:onClick="onGetPlaylistsClicked"
-                android:text="@string/btn_get_profile" />
+         <Button
+             android:id="@+id/btn_get_playlists"
+             android:layout_width="0dp"
+             android:layout_height="wrap_content"
+             android:layout_margin="8dp"
+             android:layout_weight="1"
+             android:layout_gravity="center_vertical"
+             android:onClick="onGetPlaylistsClicked"
+             android:text="@string/btn_get_profile" />
 
-        </LinearLayout>
+     </LinearLayout>
 
-        <Spinner
-            android:id="@+id/spinnerPlaylists"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+     <Spinner
+         android:id="@+id/spinnerPlaylists"
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+     <LinearLayout
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content">
 
-            <Button
-                android:id="@+id/btn_signIntoYoutube"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_margin="8dp"
-                android:layout_weight="1"
-                android:onClick="onSignIntoYoutubeClicked"
-                android:text="@string/btn_go_to_youtube" />
+         <Button
+             android:id="@+id/btn_signIntoYoutube"
+             android:layout_width="0dp"
+             android:layout_height="wrap_content"
+             android:layout_gravity="center_vertical"
+             android:layout_margin="8dp"
+             android:layout_weight="1"
+             android:text="@string/btn_go_to_youtube" />
 
-        </LinearLayout>
+     </LinearLayout>
 
-        <Button
-            android:id="@+id/button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:onClick="onClearCredentialsClicked"
-            android:text="Clear Credentials" />
+     <Button
+         android:id="@+id/button"
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+         android:onClick="onClearCredentialsClicked"
+         android:text="Clear Credentials" />
 
-        <TextView
-            android:id="@+id/playlists_text_view"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/btn_get_profile" />
-    </LinearLayout>
+     <TextView
+         android:id="@+id/playlists_text_view"
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+         android:text="@string/btn_get_profile" />
+ </LinearLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
