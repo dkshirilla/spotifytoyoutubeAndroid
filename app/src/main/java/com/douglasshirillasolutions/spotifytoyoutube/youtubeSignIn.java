@@ -58,7 +58,7 @@ public class youtubeSignIn extends Activity
 
     private static final String BUTTON_TEXT = "Call YouTube Data API";
     private static final String PREF_ACCOUNT_NAME = "accountName";
-    private static final String[] SCOPES = { YouTubeScopes.YOUTUBE_FORCE_SSL,YouTubeScopes.YOUTUBE,YouTubeScopes.YOUTUBE_READONLY,YouTubeScopes.YOUTUBEPARTNER_CHANNEL_AUDIT };
+    private static final String[] SCOPES = { YouTubeScopes.YOUTUBE,YouTubeScopes.YOUTUBE_FORCE_SSL,YouTubeScopes.YOUTUBE,YouTubeScopes.YOUTUBE_READONLY,YouTubeScopes.YOUTUBEPARTNER_CHANNEL_AUDIT };
 
     /**
      * Create the main activity.
@@ -101,8 +101,8 @@ public class youtubeSignIn extends Activity
                 "Click the \'" + BUTTON_TEXT +"\' button to test the API.");
         activityLayout.addView(mOutputText);
 
-        mProgress = new ProgressDialog(this);
-        mProgress.setMessage("Calling YouTube Data API ...");
+        //mProgress = new ProgressDialog(this);
+        //mProgress.setMessage("Calling YouTube Data API ...");
 
         setContentView(activityLayout);
 
@@ -145,26 +145,18 @@ public class youtubeSignIn extends Activity
      */
     @AfterPermissionGranted(REQUEST_PERMISSION_GET_ACCOUNTS)
     private void chooseAccount() {
-        if (EasyPermissions.hasPermissions(
-                this, Manifest.permission.GET_ACCOUNTS)) {
-            String accountName = getPreferences(Context.MODE_PRIVATE)
-                    .getString(PREF_ACCOUNT_NAME, null);
+        if (EasyPermissions.hasPermissions(this, Manifest.permission.GET_ACCOUNTS)) {
+            String accountName = getPreferences(Context.MODE_PRIVATE).getString(PREF_ACCOUNT_NAME, null);
             if (accountName != null) {
                 mCredential.setSelectedAccountName(accountName);
                 getResultsFromApi();
             } else {
                 // Start a dialog from which the user can choose an account
-                startActivityForResult(
-                        mCredential.newChooseAccountIntent(),
-                        REQUEST_ACCOUNT_PICKER);
+                startActivityForResult(mCredential.newChooseAccountIntent(), REQUEST_ACCOUNT_PICKER);
             }
         } else {
             // Request the GET_ACCOUNTS permission via a user dialog
-            EasyPermissions.requestPermissions(
-                    this,
-                    "This app needs to access your Google account (via Contacts).",
-                    REQUEST_PERMISSION_GET_ACCOUNTS,
-                    Manifest.permission.GET_ACCOUNTS);
+            EasyPermissions.requestPermissions(this, "This app needs to access your Google account (via Contacts).", REQUEST_PERMISSION_GET_ACCOUNTS, Manifest.permission.GET_ACCOUNTS);
         }
     }
 
@@ -185,21 +177,17 @@ public class youtubeSignIn extends Activity
         switch(requestCode) {
             case REQUEST_GOOGLE_PLAY_SERVICES:
                 if (resultCode != RESULT_OK) {
-                    mOutputText.setText(
-                            "This app requires Google Play Services. Please install " +
+                    mOutputText.setText("This app requires Google Play Services. Please install " +
                                     "Google Play Services on your device and relaunch this app.");
                 } else {
                     getResultsFromApi();
                 }
                 break;
             case REQUEST_ACCOUNT_PICKER:
-                if (resultCode == RESULT_OK && data != null &&
-                        data.getExtras() != null) {
-                    String accountName =
-                            data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
+                if (resultCode == RESULT_OK && data != null && data.getExtras() != null) {
+                    String accountName = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
                     if (accountName != null) {
-                        SharedPreferences settings =
-                                getPreferences(Context.MODE_PRIVATE);
+                        SharedPreferences settings = getPreferences(Context.MODE_PRIVATE);
                         SharedPreferences.Editor editor = settings.edit();
                         editor.putString(PREF_ACCOUNT_NAME, accountName);
                         editor.apply();
@@ -225,12 +213,9 @@ public class youtubeSignIn extends Activity
      *     which is either PERMISSION_GRANTED or PERMISSION_DENIED. Never null.
      */
     @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        EasyPermissions.onRequestPermissionsResult(
-                requestCode, permissions, grantResults, this);
+        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
     }
 
     /**
@@ -262,8 +247,7 @@ public class youtubeSignIn extends Activity
      * @return true if the device has a network connection, false otherwise.
      */
     private boolean isDeviceOnline() {
-        ConnectivityManager connMgr =
-                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
         return (networkInfo != null && networkInfo.isConnected());
     }
@@ -300,10 +284,7 @@ public class youtubeSignIn extends Activity
      */
     void showGooglePlayServicesAvailabilityErrorDialog(final int connectionStatusCode) {
         GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
-        Dialog dialog = apiAvailability.getErrorDialog(
-                youtubeSignIn.this,
-                connectionStatusCode,
-                REQUEST_GOOGLE_PLAY_SERVICES);
+        Dialog dialog = apiAvailability.getErrorDialog(youtubeSignIn.this, connectionStatusCode, REQUEST_GOOGLE_PLAY_SERVICES);
         dialog.show();
     }
 
@@ -318,10 +299,7 @@ public class youtubeSignIn extends Activity
         MakeRequestTask(GoogleAccountCredential credential) {
             HttpTransport transport = AndroidHttp.newCompatibleTransport();
             JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
-            mService = new com.google.api.services.youtube.YouTube.Builder(
-                    transport, jsonFactory, credential)
-                    .setApplicationName("YouTube Data API Android Quickstart")
-                    .build();
+            mService = new com.google.api.services.youtube.YouTube.Builder(transport, jsonFactory, credential).setApplicationName("YouTube Data API Android Quickstart").build();
         }
 
         /**
@@ -347,9 +325,7 @@ public class youtubeSignIn extends Activity
         private List<String> getDataFromApi() throws IOException {
             // Get a list of up to 10 files.
             List<String> channelInfo = new ArrayList<String>();
-            ChannelListResponse result = mService.channels().list("snippet,contentDetails,statistics")
-                    .setForUsername("GoogleDevelopers")
-                    .execute();
+            ChannelListResponse result = mService.channels().list("snippet,contentDetails,statistics").setForUsername("GoogleDevelopers").execute();
             List<Channel> channels = result.getItems();
             if (channels != null) {
                 Channel channel = channels.get(0);
@@ -363,12 +339,12 @@ public class youtubeSignIn extends Activity
         @Override
         protected void onPreExecute() {
             mOutputText.setText("");
-            mProgress.show();
+            //mProgress.show();
         }
 
         @Override
         protected void onPostExecute(List<String> output) {
-            mProgress.hide();
+            //mProgress.hide();
             if (output == null || output.size() == 0) {
                 mOutputText.setText("No results returned.");
             } else {
@@ -379,7 +355,7 @@ public class youtubeSignIn extends Activity
 
         @Override
         protected void onCancelled() {
-            mProgress.hide();
+            //mProgress.hide();
             if (mLastError != null) {
                 if (mLastError instanceof GooglePlayServicesAvailabilityIOException) {
                     showGooglePlayServicesAvailabilityErrorDialog(((GooglePlayServicesAvailabilityIOException) mLastError).getConnectionStatusCode());
