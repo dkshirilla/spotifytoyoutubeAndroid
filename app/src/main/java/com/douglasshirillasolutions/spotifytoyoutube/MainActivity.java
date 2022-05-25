@@ -76,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
     public static final String REDIRECT_URI = "spotify-sdk://auth";
     public static final int AUTH_TOKEN_REQUEST_CODE = 0x10;
     public static final int AUTH_CODE_REQUEST_CODE = 0x11;
+    public static List<String> playlistItemsList = new ArrayList<>();
 
 
     private final OkHttpClient mOkHttpClient = new OkHttpClient();
@@ -85,6 +86,7 @@ public class MainActivity extends AppCompatActivity {
     public String userSpotifyId= "";
     String selectedPlaylistId;
     List<String> playlistList = new ArrayList<>();
+    List<String> playlistItemsList = new ArrayList<>();
     List<String> playlistIdList = new ArrayList<>();
     Spinner spinner;
 
@@ -119,6 +121,8 @@ public class MainActivity extends AppCompatActivity {
                 String playlist =   spinner.getItemAtPosition(spinner.getSelectedItemPosition()).toString();
                 Toast.makeText(getApplicationContext(),playlist,Toast.LENGTH_LONG).show();
                 selectedPlaylistId =playlistIdList.get(i);
+                setResponse(spinner.getItemAtPosition(spinner.getSelectedItemPosition()).toString());
+                GetPlayListItems();
             }
 
             @Override
@@ -213,6 +217,42 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+    public void GetPlayListItems(){
+        if (mAccessToken == null) {
+            final Snackbar snackbar = Snackbar.make(findViewById(R.id.activity_main), R.string.warning_need_token, Snackbar.LENGTH_SHORT);
+            snackbar.getView().setBackgroundColor(ContextCompat.getColor(this, R.color.colorAccent));
+            snackbar.show();
+            return;
+        }
+
+        final Request requestTwo = new Request.Builder()
+                .url("https://api.spotify.com/v1/playlists/" + selectedPlaylistId + "/tracks")
+                .addHeader("Authorization", "Bearer " + mAccessToken)
+                .build();
+
+        cancelCall();
+        mCall = mOkHttpClient.newCall(requestTwo);
+
+        mCall.enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                setResponse("Failed to fetch data: " + e);
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                try {
+                    final JSONObject jsonObject = new JSONObject(response.body().string());
+                    Log.d("playlist json", jsonObject.toString());
+                    //setResponse(jsonObject.toString(3));
+                    updatePlaylistTextView(jsonObject);
+
+                } catch (JSONException e) {
+                    setResponse("Failed to parse data: " + e);
+                }
+            }
+        });
+    }
     private void updatePlaylistView(JSONObject jsonObject) {
         //final TextView playlistView = findViewById(R.id.playlists_text_view);
         //playlistView.setText(getString(R.string.token, userSpotifyId));
@@ -239,6 +279,51 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+
+
+    private void updatePlaylistTextView(JSONObject jsonObject) {
+        //final TextView playlistView = findViewById(R.id.playlists_text_view);
+        //playlistView.setText(getString(R.string.token, userSpotifyId));
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                JSONObject playlistJson = null;
+                try {
+                    playlistJson = new JSONObject(jsonObject.toString());
+                    if (playlistJson != null) {
+                        JSONArray jsonArray = playlistJson.getJSONArray("items");
+
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            JSONObject jsonObject1 = jsonArray.getJSONObject(i);
+
+                            JSONObject track = jsonObject1.getJSONObject("track");
+
+                            String songName = track.getString("name");
+                            String artistName= "poo";
+                            JSONArray artists = track.getJSONArray("artists");
+
+                            for (int j=0;j<artists.length();j++){
+                                JSONObject result = artists.getJSONObject(j);
+                                artistName = result.getString("name");
+                                //artistName = artistNames.getString("name");
+                            }
+
+                            String songInfo = songName + " - " + artistName;
+                            playlistItemsList.add(songInfo);
+                            }
+                        // TODO: 5/24/2022 implement youtube search functionality to choose top result for each query
+
+                        }
+                        spinner.setAdapter(new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_spinner_dropdown_item, playlists_text_view));
+                    }
+                catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
     public void onSignIntoSpotifyClicked(View view) {
 
         //get token
