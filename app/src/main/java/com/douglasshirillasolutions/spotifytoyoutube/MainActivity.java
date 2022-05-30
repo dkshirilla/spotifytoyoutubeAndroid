@@ -84,11 +84,13 @@ public class MainActivity extends AppCompatActivity {
     private String mAccessCode;
     private Call mCall;
     public String userSpotifyId= "";
+    boolean signedIntoSpotifyFlag;
     String selectedPlaylistId;
     List<String> playlistList = new ArrayList<>();
-    List<String> playlistItemsList = new ArrayList<>();
+    //List<String> playlistItemsList = new ArrayList<>();
     List<String> playlistIdList = new ArrayList<>();
     Spinner spinner;
+    Spinner playlistItemsSpinner;
 
     GoogleSignInClient mGoogleSignInClient;
     SignInButton sign_in_button;
@@ -113,6 +115,7 @@ public class MainActivity extends AppCompatActivity {
         //GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
 
         spinner=(Spinner)findViewById(R.id.spinnerPlaylists);
+        playlistItemsSpinner=(Spinner)findViewById(R.id.spinnerPlaylistItems);
         getSupportActionBar().setTitle(String.format(
                 Locale.US, "Spotify to Youtube %s", com.spotify.sdk.android.auth.BuildConfig.VERSION_NAME));
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -120,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 String playlist =   spinner.getItemAtPosition(spinner.getSelectedItemPosition()).toString();
                 Toast.makeText(getApplicationContext(),playlist,Toast.LENGTH_LONG).show();
-                selectedPlaylistId =playlistIdList.get(i);
+                selectedPlaylistId = playlistIdList.get(i);
                 setResponse(spinner.getItemAtPosition(spinner.getSelectedItemPosition()).toString());
                 GetPlayListItems();
             }
@@ -143,7 +146,6 @@ public class MainActivity extends AppCompatActivity {
         cancelCall();
         super.onDestroy();
     }
-
 
     public void onGetPlaylistsClicked(View view) {
         if (mAccessToken == null) {
@@ -173,7 +175,7 @@ public class MainActivity extends AppCompatActivity {
                     final JSONObject jsonObject = new JSONObject(response.body().string());
                     //setResponse(jsonObject.toString(3));
                     userSpotifyId = jsonObject.getString("id");
-                    GetPlayLists(view);
+                    //GetPlayLists(view);
                 } catch (JSONException e) {
                     setResponse("Failed to parse data: " + e);
                 }
@@ -181,7 +183,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
     }
-    public void GetPlayLists(View view){
+    public void GetPlayLists(){
         if (mAccessToken == null) {
             final Snackbar snackbar = Snackbar.make(findViewById(R.id.activity_main), R.string.warning_need_token, Snackbar.LENGTH_SHORT);
             snackbar.getView().setBackgroundColor(ContextCompat.getColor(this, R.color.colorAccent));
@@ -245,7 +247,7 @@ public class MainActivity extends AppCompatActivity {
                     final JSONObject jsonObject = new JSONObject(response.body().string());
                     Log.d("playlist json", jsonObject.toString());
                     //setResponse(jsonObject.toString(3));
-                    updatePlaylistTextView(jsonObject);
+                    updatePlaylistSpinner(jsonObject);
 
                 } catch (JSONException e) {
                     setResponse("Failed to parse data: " + e);
@@ -268,6 +270,7 @@ public class MainActivity extends AppCompatActivity {
                             JSONObject jsonObject1 = jsonArray.getJSONObject(i);
                             String playlistName = jsonObject1.getString("name");
                             String playlistId = jsonObject1.getString("id");
+                            //playlistList.clear();
                             playlistList.add(playlistName);
                             playlistIdList.add(playlistId);
                         }
@@ -282,9 +285,10 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-    private void updatePlaylistTextView(JSONObject jsonObject) {
+    private void updatePlaylistSpinner(JSONObject jsonObject) {
         //final TextView playlistView = findViewById(R.id.playlists_text_view);
         //playlistView.setText(getString(R.string.token, userSpotifyId));
+        playlistItemsList.clear();
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -315,7 +319,7 @@ public class MainActivity extends AppCompatActivity {
                         // TODO: 5/24/2022 implement youtube search functionality to choose top result for each query
 
                         }
-                        spinner.setAdapter(new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_spinner_dropdown_item, playlists_text_view));
+                    playlistItemsSpinner.setAdapter(new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_spinner_dropdown_item, playlistItemsList));
                     }
                 catch (JSONException e) {
                     e.printStackTrace();
@@ -358,6 +362,9 @@ public class MainActivity extends AppCompatActivity {
 
         } else if (AUTH_CODE_REQUEST_CODE == requestCode) {
             mAccessCode = response.getCode();
+            //Thread.sleep(2000);
+            //signedIntoSpotifyFlag = true;
+            //onGetPlaylistsClicked();
         }
         else if (AUTH_CODE_REQUEST_CODE == RC_SIGN_IN) {
             Task task = GoogleSignIn.getSignedInAccountFromIntent(data);
@@ -368,6 +375,36 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
+        if(mAccessToken != null && mAccessCode != null){
+            String u = userSpotifyId;
+            String t = mAccessToken;
+            final Request request = new Request.Builder()
+                    .url("https://api.spotify.com/v1/me")
+                    .addHeader("Authorization", "Bearer " + mAccessToken)
+                    .build();
+
+            cancelCall();
+            mCall = mOkHttpClient.newCall(request);
+
+            mCall.enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    setResponse("Failed to fetch data: " + e);
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    try {
+                        final JSONObject jsonObject = new JSONObject(response.body().string());
+                        //setResponse(jsonObject.toString(3));
+                        userSpotifyId = jsonObject.getString("id");
+                        GetPlayLists();
+                    } catch (JSONException e) {
+                        setResponse("Failed to parse data: " + e);
+                    }
+                }
+            });
+        }
     }
     private void handleSignInResult(Task completedTask) throws Throwable {
         try {
