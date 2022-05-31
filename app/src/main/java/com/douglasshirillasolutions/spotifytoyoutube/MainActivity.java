@@ -121,10 +121,10 @@ public class MainActivity extends AppCompatActivity {
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                String playlist =   spinner.getItemAtPosition(spinner.getSelectedItemPosition()).toString();
-                Toast.makeText(getApplicationContext(),playlist,Toast.LENGTH_LONG).show();
+                //String playlist =   spinner.getItemAtPosition(spinner.getSelectedItemPosition()).toString();
+                //Toast.makeText(getApplicationContext(),playlist,Toast.LENGTH_LONG).show();
                 selectedPlaylistId = playlistIdList.get(i);
-                setResponse(spinner.getItemAtPosition(spinner.getSelectedItemPosition()).toString());
+                //setResponse(spinner.getItemAtPosition(spinner.getSelectedItemPosition()).toString());
                 GetPlayListItems();
             }
 
@@ -426,8 +426,9 @@ public class MainActivity extends AppCompatActivity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                final TextView responseView = findViewById(R.id.playlists_text_view);
-                responseView.setText(text);
+                //final TextView responseView = findViewById(R.id.playlists_text_view);
+                //responseView.setText(text);
+                Toast.makeText(getApplicationContext(),text,Toast.LENGTH_LONG).show();
             }
         });
     }
