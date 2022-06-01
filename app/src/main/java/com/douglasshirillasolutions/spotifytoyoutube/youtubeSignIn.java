@@ -110,6 +110,10 @@ public class youtubeSignIn extends Activity
         mCredential = GoogleAccountCredential.usingOAuth2(
                 getApplicationContext(), Arrays.asList(SCOPES))
                 .setBackOff(new ExponentialBackOff());
+
+        //getResultsFromApi();
+        Intent intent = new Intent(this,MainActivity.class);
+        startActivity(intent);
     }
 
 
